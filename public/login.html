@@ -1,0 +1,41 @@
+<!----------------------------------------------------------
+Name: Saisaurav Samanta
+Class: 9-B
+School: The Newtown School, Kolkata
+Version: 1.0
+------------------------------------------------------------>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduSphere | Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <h2>EduSphere Login</h2>
+      <p class="subtitle">Access your dashboard</p>
+
+      <form action="/login" method="POST">
+        <label for="role">Login as:</label>
+        <select name="role" id="role" required>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+        </select>
+
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Enter your username" required>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Enter your password" required>
+
+        <button type="submit" class="btn">Login</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

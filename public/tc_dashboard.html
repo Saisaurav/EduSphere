@@ -1,0 +1,153 @@
+<!----------------------------------------------------------
+Name: Saisaurav Samanta
+Class: 9-B
+School: The Newtown School, Kolkata
+Version: 1.0
+------------------------------------------------------------>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard | EduSphere</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<body class="dashboard-body">
+
+    <nav class="navbar dashboard-navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-logo">EduSphere</a>
+            <ul class="navbar-menu">
+                <li><button onclick="showSection('materials')">Materials</button></li>
+                <li><button onclick="showSection('quiz')">Quiz/Tests</button></li>
+                <li><button onclick="showSection('profile')">Profile</button></li>
+                <li><button onclick="toggleDoubts()">Doubts</button></li>
+                <li><button onclick="showSection('live-captioning')">Live Captioning</button></li>
+                <li>
+                  <button onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed" viewBox="0 0 16 16" style="scale: 2;">
+                      <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3zm1 13h8V2H4z"/>
+                      <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/>
+                    </svg>
+                  </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <button onclick="startClass()" style="position: fixed; right:20px; bottom: 50px; color: #205849; background-color: #5bebc286; border: none; border-radius: 8px; height: 40px; width: 200px;">Start Class</button>
+<div id="live-captioning-section" class="section hidden">
+  <div class="card">
+    <h2>Live Captioning</h2>
+    <p>Click "Start Live Captioning" and begin speaking. Your words will be transcribed and sent to students.</p>
+    <button id="start-captioning-btn" class="primary-btn">Start Live Captioning</button>
+    <button id="stop-captioning-btn" class="primary-btn hidden">Stop Captioning</button>
+    <div id="live-captions-display" class="output-box" style="margin-top: 1rem;">
+      <p>Captions will appear here...</p>
+    </div>
+  </div>
+</div>
+      <div id="loading-animation" class="loading-animation hidden">
+        <div class="spinner"></div>
+        <p>Processing your material...</p>
+      </div>
+  <div id="main-area">
+<div id="materials-section" class="section">
+  <div class="materials-container">
+    <div class="materials-feed">
+      <h2>📚 Study Materials</h2>
+      <div id="material-output" class="chat-output" name="material-output">
+        <p class="placeholder">📘 Processed content will appear here...</p>
+      </div>
+<form class="material-input-bar" id="material-form" onsubmit="submitMaterial(event)">
+  <textarea name="materialText" id="material-input" placeholder="Type or paste material here..."></textarea>
+  <button class="hideButton" type="button" onclick="hideMaterials()">Hide input</button>
+  <input type="file" id="material-file" name="materialFile" accept=".pdf,.txt">
+
+  <input type="text" id="material-specs" name="specifications" placeholder="Specifications (e.g. summary, diagrams, etc.)">
+
+  <button type="submit" class="primary-btn">➤</button>
+</form>
+<button class="showButton hidden" id="showButton" type="button" onclick="hideMaterials()">Show input</button>
+    </div>
+
+    <div class="materials-side">
+      <h3>🖼️ Diagrams & Notes</h3>
+      <div class="notes-box" id="notes-box">
+        <p><em>Placeholder for diagrams/handwritten notes.</em></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="quiz-section" class="section hidden">
+  <div class="card">
+    <h2>📝 Quizzes & Tests</h2>
+    <p>Create customized quizzes for your students.</p>
+    <div class="quiz-header">
+      <button class="primary-btn" onclick="openTeacherQuizModal()">+ Generate Quiz</button>
+    </div>
+    <h3>QUESTIONS</h3>
+    <div id="quiz-output" class="quiz-results">
+      <p class="placeholder">No quizzes yet. Click "Generate Quiz" to start.</p>
+    </div>
+    <h3>ANSWERS</h3>
+    <div id="quiz-answers"></div>
+  </div>
+</div>
+    <div id="profile-section" class="section hidden">
+      <div class="card profile-card">
+        <h2>👤 Profile</h2>
+        <img src="https://via.placeholder.com/100" class="profile-pic" alt="Profile">
+        <p><strong>Name:</strong> Teacher Example</p>
+        <p><strong>Email:</strong> teacher@example.com</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="doubts-pane">
+    <button class="close-btn" onclick="toggleDoubts()">×</button>
+    <h3>❓ Student Doubts</h3>
+    <div id="doubts-chatoutput" class="chat-output"></div> <!-- Added chat-output div for doubts -->
+    <form class="doubt-form" onsubmit="submitDoubt(event)"> <!-- Added onsubmit event handler -->
+      <input type="text" placeholder="Ask AI your doubt here..." />
+      <button type="submit">➤</button>
+    </form>
+  </div>
+
+  <div id="quiz-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeTeacherQuizModal()">×</span>
+      <h2>Generate Quiz</h2>
+      <form onsubmit="submitQuizForm(event)" id="quiz-form">
+        <label for="numQuestions">Number of Questions:</label>
+        <input type="number" id="numQuestions" min="1" max="50" value="5" required>
+
+        <h3>Type:</h3>
+        <div class="checkbox-container">
+          <label for="multipleChoice">Multiple Choice</label>
+          <input type="checkbox" id="multipleChoice" name="quizType" value="multipleChoice" checked>
+          <label for="trueFalse">True/False</label>
+          <input type="checkbox" id="trueFalse" name="quizType" value="trueFalse">
+          <label for="fillInTheBlanks">Fill in the Blanks</label>
+          <input type="checkbox" id="fillInTheBlanks" name="quizType" value="fillInTheBlanks">
+          <label for="oneWordAnswer">One Word Answer</label>
+          <input type="checkbox" id="oneWordAnswer" name="quizType" value="1wordAnswer">
+        </div>
+        <button type="submit" class="primary-btn">Generate</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p class="ClassID">Class ID: <span id="class-id">placeholder</span></p>
+  </div>
+    <div class="footer" style="background: none; width: 100%;right: 0; bottom: 1px; align-items: center;">
+    <p style="font-size: small; color: rgb(63, 104, 104);">Developed by Saisaurav Samanta, Class 9B, The Newtown School, Kolkata.</p>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

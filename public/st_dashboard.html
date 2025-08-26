@@ -1,0 +1,166 @@
+<!----------------------------------------------------------
+Name: Saisaurav Samanta
+Class: 9-B
+School: The Newtown School, Kolkata
+Version: 1.0
+------------------------------------------------------------>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard - EduAssist</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2canvas (needed for doc.html) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body class="dashboard-body">
+    <nav class="navbar st-dashboard-navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="navbar-logo">EduSphere</a>
+            <ul class="navbar-menu">
+                <li><button onclick="showSection('materials')">Materials</button></li>
+                <li><button onclick="showSection('quiz')">Quiz/Tests</button></li>
+                <li><button onclick="showSection('profile')">Profile</button></li>
+                <li><button onclick="showSection('notes')">Notes</button></li>
+                <li><button onclick="toggleDoubts()">Doubts</button></li>
+                <li><button onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed" viewBox="0 0 16 16" style="scale: 2;">
+                      <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3zm1 13h8V2H4z"/>
+                      <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/>
+                    </svg>
+                  </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+<div id="live-captions-section" class="section hidden">
+  <div class="card">
+    <h2 style="color: #7d792e;">Live Class Captions</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; color: #7d792e;">
+      <p>Select your language:</p>
+      <select id="language-selector" class="dropdown">
+        <option value="en" selected>English</option>
+        <option value="hi">Hindi</option>
+        <option value="bn">Bengali</option>
+        <option value="od">Odia</option>
+        <option value="as">Assamese</option>
+        <option value="te">Telugu</option>
+        <option value="ta">Tamil</option>
+      </select>
+    </div>
+  </div>
+</div>
+    <div id="live-captions-output" class="output-box live-captions hidden" style="height: 50px;color: #fff; overflow-y: auto; position: fixed; bottom: 60px; width: 550px; left: 50%; transform: translateX(-50%);background-color: #00000080; border: 1px solid #ccc; border-radius: 8px; padding: 10px;">
+      <p>Waiting for the teacher to start the class...</p>
+    </div>
+      <div id="loading-animation" class="loading-animation hidden">
+        <div class="spinner" style="color: #7d792e;"></div>
+        <p>Processing your material...</p>
+      </div>
+    <div class="joinBox" style="background: none;">
+      <button class="join-dropdown-trigger">Join Class</button>
+      <div class="join-dropdown">
+        <input type="text" id="class-id-input" placeholder="Enter Class ID" />
+        <button onclick="handleJoinClass()">Submit</button>
+      </div>
+    </div>
+  <div id="main-area">
+    <div id="materials-section" class="section">
+      <div class="materials-container">
+        <div class="materials-feed">
+          <h2>📚 Study Materials</h2>
+          <div id="material-output" class="chat-output st-materials" name="material-output">
+            <p class="placeholder">Material shared by teacher shown here...</p>
+          </div>
+        </div>
+        <div class="materials-side">
+          <h3>🖼️ Diagrams & Notes</h3>
+          <div class="notes-box" id="notes-box">
+            <p><em>Placeholder for diagrams/handwritten notes.</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="quiz-section" class="section hidden">
+      <div class="card quiz-card stquiz">
+      <h2>📝 Quiz/Tests</h2>
+      <p><em>Attempt quizzes shared by your teacher. </em></p>
+      </div>
+      <div id="quiz-output" class="chat-output" name="quiz-output">
+        <div class="st-quiz">
+          <p class="placeholder">Quiz questions will be displayed here...</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="profile-section" class="section hidden">
+      <div class="card profile-card stProfile">
+        <h2>👤 Profile</h2>
+        <img src="https://via.placeholder.com/100" class="profile-pic" alt="Profile">
+        <p><strong>Name:</strong> Student Example</p>
+        <p><strong>Class:</strong> 10-B</p>
+        <p><strong>Enrolment No.</strong> 123456</p>
+      </div>
+    </div>
+
+    <div id="notes-section" class="section hidden">
+      <div class="card notes-card">
+      <div class="notes-header">
+        <h2>📝 Notes</h2>
+        <p><em>A.I.-generated notes generator. Will produce notes based on course content.</em></p>
+        <button onclick="generateNotes()">Create Notes+</button>
+      </div>
+      </div>
+      <div id="notes-output" class="notes-output">
+        <div class="notes-container">
+        <div id="notes-content" class="notes-content">
+          <p class="placeholder">Your notes will appear here...</p>
+        </div>
+        <div id="notes-extras" class="notes-extras page-break">
+          <p class="placeholder">Additional resources and links will be displayed here...</p>
+        </div>
+        </div>
+        <button onclick="downloadNotes()">Download Notes as PDF</button>
+      </div>
+    </div>
+
+
+  <div id="doubts-pane" class="st-doubts-pane">
+    <button class="close-btn" onclick="toggleDoubts()">×</button>
+    <h3 style="color: #7d792e">❓ AI Assistance</h3>
+      <div class="chat-output" id="doubts-chatoutput"></div>
+    <form class="doubt-form" onsubmit="submitDoubt(event)">
+      <input type="text" placeholder="Ask AI your doubt here..." />
+      <button type="submit">➤</button>
+    </form>
+  </div>
+
+  <!-- Quiz Modal Structure -->
+  <div id="quiz-modal" class="quiz-modal-overlay hidden">
+    <div class="quiz-modal-content">
+      <div class="quiz-modal-header">
+        <h2 id="quiz-modal-title"></h2>
+        <button class="close-btn" onclick="closeQuizModal()">&times;</button>
+      </div>
+      <form id="student-quiz-form" class="quiz-modal-body">
+        <!-- Quiz questions will be dynamically inserted here -->
+      </form>
+      <div class="quiz-modal-footer">
+        <button type="submit" form="student-quiz-form" class="submit-quiz-btn">Submit Quiz</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer" style="background: none; width: 100%;right: 0; bottom: 1px; align-items: center;">
+    <p style="font-size: small; color: rgb(63, 104, 104);">Developed by Saisaurav Samanta, Class 9B, The Newtown School, Kolkata.</p>
+  </div>
+  </div>
+
+  <button style="position: fixed; bottom: 10px; right: 20px; background-color: #f1f1f100; align-items: center;width: 200px; border: none; border-radius: 8px; height: 40px; background-color: #eaeacc;" onclick="showSection('live-captions'); document.getElementById('live-captions-output').classList.toggle('hidden');">Live Captions</button>
+<script src="dashboard.js"></script>
+</body>
+</html>
