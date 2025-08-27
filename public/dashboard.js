@@ -432,7 +432,7 @@ function renderQuizInModal(quizData, materialTitle) {
                     <label for="${optionId}">${option}</label><br>
                 `;
             });
-        } else if (question.type === "TrueFalse") {
+        } else if (question.type === "trueFalse") {
             optionsDiv.innerHTML += `
                 <input type="radio" id="q${index}-true" name="question-${index}" value="True">
                 <label for="q${index}-true">True</label><br>
@@ -440,7 +440,6 @@ function renderQuizInModal(quizData, materialTitle) {
                 <label for="q${index}-false">False</label><br>
             `;
         } else if (question.type === "1wordAnswer") {
-            // For short answer, use a textarea
             optionsDiv.innerHTML += `
                  <input type="text" id="q${index}-fillin" name="question-${index}" placeholder="Enter your answer here...">
             `;
