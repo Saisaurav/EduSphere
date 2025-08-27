@@ -281,7 +281,7 @@ app.post("/generate-quiz", upload.none(), async (req, res) => {
     {
       "questions": [
         {
-          "type": "multipleChoice" || "TrueFalse" || "1wordAnswer" || "fillInTheBlanks",
+          "type": "multipleChoice" || "trueFalse" || "1wordAnswer" || "fillInTheBlanks",
           "question": "...",
           "options": ["...","..."], // only for multipleChoice
           "answer": "..." // for MultipleChoice questions, Only display the option (A,B,C,D)
